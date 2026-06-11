@@ -36,7 +36,7 @@ the same build. Codex first (closest to Claude for code), Gemini as a second fal
 ## Install
 
 ```bash
-git clone https://github.com/behiquekalani/keep-building
+git clone https://github.com/kalaniandrez/keep-building
 cd keep-building
 ./install.sh            # installs to ~/.local/bin (pass a dir to override)
 ```
