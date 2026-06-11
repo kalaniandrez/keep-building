@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# keep-building [codex|gemini] [dir]
+#
+# One AI ran out mid-build? Hand the SAME repo to another, with no progress lost.
+#   1. checkpoints first (commits + pushes, so the swap is safe)
+#   2. launches the agent pre-briefed to read AGENTS.md and continue
+#
+# Run this in your terminal (codex/gemini are interactive). Default agent: codex.
+set -euo pipefail
+
+AGENT="${1:-codex}"
+# Validate BEFORE any side effects (no checkpoint on bad input).
+case "$AGENT" in
+  codex|gemini) ;;
+  -h|--help) echo "usage: keep-building [codex|gemini] [dir]"; exit 0 ;;
+  *) echo "Unknown agent '$AGENT' (use: codex or gemini)" >&2; exit 1 ;;
+esac
+
+cd "${2:-$PWD}"
+
+# 1. Safety checkpoint so nothing is lost in the handoff.
+command -v checkpoint >/dev/null 2>&1 && { checkpoint "wip: pre-handoff to $AGENT" || true; }
+
+# 2. Brief the next agent off the repo itself.
+KICK="You are taking over an in-progress build because the previous AI is unavailable. \
+Read AGENTS.md if present for this project's rules and context. Run 'git log --oneline -8' \
+and 'git status' to see the current state. Tell me in ONE line what you understand the \
+current task to be, then continue building it. Run 'checkpoint \"<what you did>\"' after \
+each working change."
+
+echo "  launching $AGENT in write mode with full repo context..."
+echo ""
+
+case "$AGENT" in
+  codex)  exec codex -s workspace-write "$KICK" ;;
+  gemini) exec gemini --approval-mode auto_edit -i "$KICK" ;;
+esac
