@@ -1,5 +1,7 @@
 # keep-building
 
+![keep-building demo](demo.svg)
+
 **Never lose coding momentum when one AI runs out.**
 
 AI coding assistants (Claude Code, OpenAI Codex, Gemini) each have their own usage
